@@ -1,1 +1,1 @@
-# ink-amm
+# WebAssembly-first Decentralized Exchange :dizzy:
