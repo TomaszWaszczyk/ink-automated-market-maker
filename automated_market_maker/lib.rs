@@ -67,6 +67,17 @@ mod automated_market_maker {
         }
     }
 
+    pub enum Error {
+        ZeroAmount,
+        ZeroLiquidity,
+        InsufficientAmount,
+        NonEquivalentValue,
+        ThresholdNotReached,
+        InvalidShare,
+        InsufficientLiquidity,
+        SlippageExceeded,
+    }
+
 
     /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
     ///
