@@ -2,14 +2,20 @@
 
 #[ink::contract]
 mod automated_market_maker {
-
+    // ink_prelude::collections::hash_map::HashMap{};
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
     #[ink(storage)]
     pub struct AutomatedMarketMaker {
-        /// Stores a single `bool` value on the storage.
-        value: bool,
+
+        totalShares: Balance, // Stores the total amount of share issued for the pool
+        totalToken1: Balance, // Stores the amount of Token1 locked in the pool
+        totalToken2: Balance, // Stores the amount of Token2 locked in the pool
+        shares: HashMap<AccountId, Balance>, // Stores the share holding of each provider
+        token1Balance: HashMap<AccountId, Balance>, // Stores the token1 balance of each user
+        token2Balance: HashMap<AccountId, Balance>, // Stores the token2 balance of each user
+        fees: Balance,        // Percent of trading fees charged on trade
     }
 
     impl AutomatedMarketMaker {
@@ -67,6 +73,8 @@ mod automated_market_maker {
         }
     }
 
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
         ZeroAmount,
         ZeroLiquidity,
