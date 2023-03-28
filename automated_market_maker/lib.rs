@@ -1,28 +1,34 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+const PRECISION: u128 = 1_000_000;
+
+
 #[ink::contract]
 mod automated_market_maker {
-    // ink_prelude::collections::hash_map::HashMap{};
-    /// Defines the storage of your contract.
-    /// Add new fields to the below struct in order
-    /// to add new static storage fields to your contract.
+    use ink::storage::{
+        Mapping,
+    };
+
+#[derive(Default)]
     #[ink(storage)]
     pub struct AutomatedMarketMaker {
-
         totalShares: Balance, // Stores the total amount of share issued for the pool
         totalToken1: Balance, // Stores the amount of Token1 locked in the pool
         totalToken2: Balance, // Stores the amount of Token2 locked in the pool
-        shares: HashMap<AccountId, Balance>, // Stores the share holding of each provider
-        token1Balance: HashMap<AccountId, Balance>, // Stores the token1 balance of each user
-        token2Balance: HashMap<AccountId, Balance>, // Stores the token2 balance of each user
+        shares: Mapping<AccountId, Balance>, // Stores the share holding of each provider
+        token1Balance: Mapping<AccountId, Balance>, // Stores the token1 balance of each user
+        token2Balance: Mapping<AccountId, Balance>, // Stores the token2 balance of each user
         fees: Balance,        // Percent of trading fees charged on trade
     }
 
     impl AutomatedMarketMaker {
-        /// Constructor that initializes the `bool` value to the given `init_value`.
+
         #[ink(constructor)]
-        pub fn new(init_value: bool) -> Self {
-            Self { value: init_value }
+        pub fn new(_fees: Balance) -> Self {
+            Self {
+                fees: if _fees >= 1000 { 0 } else { _fees },
+                ..Default::default()
+            }
         }
 
         /// Constructor that initializes the `bool` value to `false`.
@@ -38,13 +44,13 @@ mod automated_market_maker {
         /// to `false` and vice versa.
         #[ink(message)]
         pub fn flip(&mut self) {
-            self.value = !self.value;
+            todo!();
         }
 
         /// Simply returns the current value of our `bool`.
         #[ink(message)]
         pub fn get(&self) -> bool {
-            self.value
+            todo!();
         }
     }
 
