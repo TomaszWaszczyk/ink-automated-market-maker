@@ -2,6 +2,7 @@
 
 const PRECISION: u128 = 1_000_000;
 
+
 #[ink::contract]
 mod automated_market_maker {
     use ink::storage::Mapping;
@@ -9,12 +10,12 @@ mod automated_market_maker {
     #[derive(Default)]
     #[ink(storage)]
     pub struct AutomatedMarketMaker {
-        totalShares: Balance, // Stores the total amount of share issued for the pool
-        totalToken1: Balance, // Stores the amount of Token1 locked in the pool
-        totalToken2: Balance, // Stores the amount of Token2 locked in the pool
+        total_shares: Balance, // Stores the total amount of share issued for the pool
+        total_token1: Balance, // Stores the amount of Token1 locked in the pool
+        total_token2: Balance, // Stores the amount of Token2 locked in the pool
         shares: Mapping<AccountId, Balance>, // Stores the share holding of each provider
-        token1Balance: Mapping<AccountId, Balance>, // Stores the token1 balance of each user
-        token2Balance: Mapping<AccountId, Balance>, // Stores the token2 balance of each user
+        token1_balance: Mapping<AccountId, Balance>, // Stores the token1 balance of each user
+        token2_balance: Mapping<AccountId, Balance>, // Stores the token2 balance of each user
         fees: Balance,        // Percent of trading fees charged on trade
     }
 
@@ -32,47 +33,18 @@ mod automated_market_maker {
             Self::new(Default::default())
         }
 
-        #[ink(message)]
-        pub fn flip(&mut self) {
-            todo!();
-        }
-
         /// Sends free token(s) to the invoker
         #[ink(message)]
-        pub fn faucet(&mut self, _amountToken1: Balance, _amountToken2: Balance) {
+        pub fn faucet(&mut self, _amount_token1: Balance, _amount_token2: Balance) {
             let caller = self.env().caller();
-            let token1 = self.token1Balance.get(&caller).unwrap_or(0);
-            let token2 = self.token2Balance.get(&caller).unwrap_or(0);
+            let token1 = self.token1_balance.get(&caller).unwrap_or(0);
+            let token2 = self.token2_balance.get(&caller).unwrap_or(0);
 
-            self.token1Balance.insert(caller, &(token1 + _amountToken1));
-            self.token2Balance.insert(caller, &(token2 + _amountToken2));
+            self.token1_balance.insert(caller, &(token1 + _amount_token1));
+            self.token2_balance.insert(caller, &(token2 + _amount_token2));
         }
     }
 
-    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
-    /// module and test functions are marked with a `#[test]` attribute.
-    /// The below code is technically just normal Rust code.
-    #[cfg(test)]
-    mod tests {
-        /// Imports all the definitions from the outer scope so we can use them here.
-        use super::*;
-
-        /// We test if the default constructor does its job.
-        #[ink::test]
-        fn default_works() {
-            let automated_market_maker = AutomatedMarketMaker::default();
-            assert_eq!(automated_market_maker.get(), false);
-        }
-
-        /// We test a simple use case of our contract.
-        #[ink::test]
-        fn it_works() {
-            let mut automated_market_maker = AutomatedMarketMaker::new(false);
-            assert_eq!(automated_market_maker.get(), false);
-            automated_market_maker.flip();
-            assert_eq!(automated_market_maker.get(), true);
-        }
-    }
 
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
