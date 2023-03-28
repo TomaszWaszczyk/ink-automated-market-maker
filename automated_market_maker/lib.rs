@@ -7,30 +7,30 @@ const PRECISION: u128 = 1_000_000;
 mod automated_market_maker {
     use ink::storage::Mapping;
 
+
     #[derive(Default)]
     #[ink(storage)]
     pub struct AutomatedMarketMaker {
-        total_shares: Balance, // Stores the total amount of share issued for the pool
-        total_token1: Balance, // Stores the amount of Token1 locked in the pool
-        total_token2: Balance, // Stores the amount of Token2 locked in the pool
-        shares: Mapping<AccountId, Balance>, // Stores the share holding of each provider
+        total_shares: Balance,                       // Stores the total amount of share issued for the pool
+        total_token1: Balance,                       // Stores the amount of Token1 locked in the pool
+        total_token2: Balance,                       // Stores the amount of Token2 locked in the pool
+        shares: Mapping<AccountId, Balance>,         // Stores the share holding of each provider
         token1_balance: Mapping<AccountId, Balance>, // Stores the token1 balance of each user
         token2_balance: Mapping<AccountId, Balance>, // Stores the token2 balance of each user
-        fees: Balance,        // Percent of trading fees charged on trade
+        fees: Balance,                               // Percent of trading fees charged on trade
     }
 
+
+    #[ink(impl)]
     impl AutomatedMarketMaker {
+        /// Constructs a new AMM instance
+        /// @param _fees: valid interval -> [0,1000)
         #[ink(constructor)]
         pub fn new(_fees: Balance) -> Self {
             Self {
                 fees: if _fees >= 1000 { 0 } else { _fees },
                 ..Default::default()
             }
-        }
-
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new(Default::default())
         }
 
         /// Sends free token(s) to the invoker
@@ -42,6 +42,29 @@ mod automated_market_maker {
 
             self.token1_balance.insert(caller, &(token1 + _amount_token1));
             self.token2_balance.insert(caller, &(token2 + _amount_token2));
+        }
+
+        fn valid_amount_check(&self, _balance: Mapping<AccountId, Balance>, _qty: Balance) -> Result<(), Error> {
+            let caller = self.env().caller();
+            let my_balance = _balance.get(&caller).unwrap_or(0);
+
+            match _qty {
+                0 => Err(Error::ZeroAmount),
+                _ if _qty > my_balance => Err(Error::InsufficientAmount),
+                _ => Ok(()),
+            }
+        }
+
+        // Returns the liquidity constant of the pool
+        fn get_k(&self) -> Balance {
+            self.total_token1 * self.total_token2
+        }
+
+        fn active_pool(&self) -> Result<(), Error> {
+            match self.get_k() {
+                0 => Err(Error::ZeroLiquidity),
+                _ => Ok(()),
+            }
         }
     }
 
@@ -58,6 +81,7 @@ mod automated_market_maker {
         InsufficientLiquidity,
         SlippageExceeded,
     }
+
 
     /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
     ///
