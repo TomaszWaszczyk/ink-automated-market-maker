@@ -2,14 +2,11 @@
 
 const PRECISION: u128 = 1_000_000;
 
-
 #[ink::contract]
 mod automated_market_maker {
-    use ink::storage::{
-        Mapping,
-    };
+    use ink::storage::Mapping;
 
-#[derive(Default)]
+    #[derive(Default)]
     #[ink(storage)]
     pub struct AutomatedMarketMaker {
         totalShares: Balance, // Stores the total amount of share issued for the pool
@@ -22,7 +19,6 @@ mod automated_market_maker {
     }
 
     impl AutomatedMarketMaker {
-
         #[ink(constructor)]
         pub fn new(_fees: Balance) -> Self {
             Self {
@@ -31,26 +27,25 @@ mod automated_market_maker {
             }
         }
 
-        /// Constructor that initializes the `bool` value to `false`.
-        ///
-        /// Constructors can delegate to other constructors.
         #[ink(constructor)]
         pub fn default() -> Self {
             Self::new(Default::default())
         }
 
-        /// A message that can be called on instantiated contracts.
-        /// This one flips the value of the stored `bool` from `true`
-        /// to `false` and vice versa.
         #[ink(message)]
         pub fn flip(&mut self) {
             todo!();
         }
 
-        /// Simply returns the current value of our `bool`.
+        /// Sends free token(s) to the invoker
         #[ink(message)]
-        pub fn get(&self) -> bool {
-            todo!();
+        pub fn faucet(&mut self, _amountToken1: Balance, _amountToken2: Balance) {
+            let caller = self.env().caller();
+            let token1 = self.token1Balance.get(&caller).unwrap_or(0);
+            let token2 = self.token2Balance.get(&caller).unwrap_or(0);
+
+            self.token1Balance.insert(caller, &(token1 + _amountToken1));
+            self.token2Balance.insert(caller, &(token2 + _amountToken2));
         }
     }
 
@@ -92,7 +87,6 @@ mod automated_market_maker {
         SlippageExceeded,
     }
 
-
     /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
     ///
     /// When running these you need to make sure that you:
@@ -117,7 +111,13 @@ mod automated_market_maker {
 
             // When
             let contract_account_id = client
-                .instantiate("automated_market_maker", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate(
+                    "automated_market_maker",
+                    &ink_e2e::alice(),
+                    constructor,
+                    0,
+                    None,
+                )
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -137,7 +137,13 @@ mod automated_market_maker {
             // Given
             let constructor = AutomatedMarketMakerRef::new(false);
             let contract_account_id = client
-                .instantiate("automated_market_maker", &ink_e2e::bob(), constructor, 0, None)
+                .instantiate(
+                    "automated_market_maker",
+                    &ink_e2e::bob(),
+                    constructor,
+                    0,
+                    None,
+                )
                 .await
                 .expect("instantiate failed")
                 .account_id;
