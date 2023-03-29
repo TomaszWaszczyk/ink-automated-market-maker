@@ -33,6 +33,12 @@ mod automated_market_maker {
             }
         }
 
+        #[ink(message)]
+        pub fn provide_liquidity(&mut self, _amount_token1: Balance, _amount_token2: Balance) -> Result<Balance, Error> {
+            // self.valid_amount_check(&self.token1_balance, _amount_token1)?;
+            todo!()
+        }
+
         /// Sends free token(s) to the invoker
         #[ink(message)]
         pub fn faucet(&mut self, _amount_token1: Balance, _amount_token2: Balance) {
