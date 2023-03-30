@@ -33,6 +33,8 @@ mod automated_market_maker {
             }
         }
 
+        /// Providing new liquidity to the pool
+        /// Returns the amount of shares issues for locking assets
         #[ink(message)]
         pub fn provide_liquidity(&mut self, _amount_token1: Balance, _amount_token2: Balance) -> Result<Balance, Error> {
             // self.valid_amount_check(&self.token1_balance, _amount_token1)?;
@@ -61,16 +63,27 @@ mod automated_market_maker {
             }
         }
 
-        // Returns the liquidity constant of the pool
+        /// Returns the liquidity constant of the pool
         fn get_k(&self) -> Balance {
             self.total_token1 * self.total_token2
         }
 
+        /// Restriction of withdrawing and swapping feature till liquidity is added to the pool
         fn active_pool(&self) -> Result<(), Error> {
             match self.get_k() {
                 0 => Err(Error::ZeroLiquidity),
                 _ => Ok(()),
             }
+        }
+
+        /// Returns the amount of tokens locked in the pool, total shares issued and trading fee parameter
+        pub fn get_info_about_holdings(&self) -> (Balance, Balance, Balance) {
+            let caller = self.env().caller();
+            let token_1 = self.token1_balance.get(&caller).unwrap_or(0);
+            let token_2 = self.token2_balance.get(&caller).unwrap_or(0);
+            let my_shares = self.shares.get(&caller).unwrap_or(0);
+
+            (token_1, token_2, my_shares)
         }
     }
 
