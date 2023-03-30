@@ -1,4 +1,4 @@
-[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge.svg)](https://github.com/paritytech/ink)
+[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/built-for-ink.svg)](https://github.com/paritytech/ink)
 
 # :dizzy: Building WebAssembly-first Decentralized Exchange :dizzy:
 
