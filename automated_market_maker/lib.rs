@@ -44,6 +44,19 @@ mod automated_market_maker {
                 return Err(Error::ThresholdNotReached);
             }
 
+            let caller = self.env().caller();
+            let token_1 = self.token1_balance.get(&caller).unwrap();
+            let token_2 = self.token1_balance.get(&caller).unwrap();
+            self.token1_balance.insert(caller, &(token_1 - _amount_token1));
+            self.token2_balance.insert(caller, &(token_2 - _amount_token2));
+
+            self.total_token1 += _amount_token1;
+            self.total_token2 += _amount_token2;
+            self.total_shares += share;
+            self.shares
+                .take(caller);
+
+
             Ok(share)
         }
 
