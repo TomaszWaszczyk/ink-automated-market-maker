@@ -8,19 +8,6 @@ mod automated_market_maker {
     use ink::storage::Mapping;
 
 
-    #[derive(Default)]
-    #[ink(storage)]
-    pub struct AutomatedMarketMaker {
-        total_shares: Balance,                       // Stores the total amount of share issued for the pool
-        total_token1: Balance,                       // Stores the amount of Token1 locked in the pool
-        total_token2: Balance,                       // Stores the amount of Token2 locked in the pool
-        shares: Mapping<AccountId, Balance>,         // Stores the share holding of each provider
-        token1_balance: Mapping<AccountId, Balance>, // Stores the token1 balance of each user
-        token2_balance: Mapping<AccountId, Balance>, // Stores the token2 balance of each user
-        fees: Balance,                               // Percent of trading fees charged on trade
-    }
-
-
     #[ink(impl)]
     impl AutomatedMarketMaker {
         /// Constructs a new AMM instance
@@ -37,19 +24,8 @@ mod automated_market_maker {
         /// Returns the amount of shares issues for locking assets
         #[ink(message)]
         pub fn provide_liquidity(&mut self, _amount_token1: Balance, _amount_token2: Balance) -> Result<Balance, Error> {
-            // self.valid_amount_check(&self.token1_balance, _amount_token1)?;
+            // self.valid_amount_check(&self.token1_balance, _amount_token1);
             todo!()
-        }
-
-        /// Sends free token(s) to the invoker
-        #[ink(message)]
-        pub fn faucet(&mut self, _amount_token1: Balance, _amount_token2: Balance) {
-            let caller = self.env().caller();
-            let token1 = self.token1_balance.get(&caller).unwrap_or(0);
-            let token2 = self.token2_balance.get(&caller).unwrap_or(0);
-
-            self.token1_balance.insert(caller, &(token1 + _amount_token1));
-            self.token2_balance.insert(caller, &(token2 + _amount_token2));
         }
 
         fn valid_amount_check(&self, _balance: Mapping<AccountId, Balance>, _qty: Balance) -> Result<(), Error> {
@@ -61,6 +37,17 @@ mod automated_market_maker {
                 _ if _qty > my_balance => Err(Error::InsufficientAmount),
                 _ => Ok(()),
             }
+        }
+
+        /// Sends free token(s) to the invoker
+        #[ink(message)]
+        pub fn faucet(&mut self, _amount_token1: Balance, _amount_token2: Balance) {
+            let caller = self.env().caller();
+            let token1 = self.token1_balance.get(&caller).unwrap_or(0);
+            let token2 = self.token2_balance.get(&caller).unwrap_or(0);
+
+            self.token1_balance.insert(caller, &(token1 + _amount_token1));
+            self.token2_balance.insert(caller, &(token2 + _amount_token2));
         }
 
         /// Returns the liquidity constant of the pool
@@ -95,11 +82,22 @@ mod automated_market_maker {
                 self.fees,
             )
         }
-
-
     }
 
+    /// Storage struct
+    #[derive(Default)]
+    #[ink(storage)]
+    pub struct AutomatedMarketMaker {
+        total_shares: Balance,                       // Stores the total amount of share issued for the pool
+        total_token1: Balance,                       // Stores the amount of Token1 locked in the pool
+        total_token2: Balance,                       // Stores the amount of Token2 locked in the pool
+        shares: Mapping<AccountId, Balance>,         // Stores the share holding of each provider
+        token1_balance: Mapping<AccountId, Balance>, // Stores the token1 balance of each user
+        token2_balance: Mapping<AccountId, Balance>, // Stores the token2 balance of each user
+        fees: Balance,                               // Percent of trading fees charged on trade
+    }
 
+    /// Errors definitions
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
