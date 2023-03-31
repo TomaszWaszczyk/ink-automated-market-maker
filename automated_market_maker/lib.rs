@@ -63,16 +63,31 @@ mod automated_market_maker {
 
         /// Returns amount of Token1 required when providing liquidity with _amountToken2 quantity of Token2
         #[ink(message)]
-        pub fn getEquivalentToken1Estimate(&self, _amount_token2: Balance) -> Result<Balance, Error> {
+        pub fn get_equivalent_token1_estimate(&self, _amount_token2: Balance) -> Result<Balance, Error> {
             self.active_pool()?;
             Ok(self.total_token1 * _amount_token2 / self.total_token2)
         }
 
         /// Returns amount of Token2 required when providing liquidity with _amountToken1 quantity of Token1
         #[ink(message)]
-        pub fn getEquivalentToken2Estimate(&self, _amount_token1: Balance) -> Result<Balance, Error> {
+        pub fn get_equivalent_token2_estimate(&self, _amount_token1: Balance) -> Result<Balance, Error> {
             self.active_pool()?;
             Ok(self.total_token2 * _amount_token1 / self.total_token1)
+        }
+
+        /// Returns estimation of token 1 and token 2 that will be released on burning given _share
+        #[ink(message)]
+        pub fn get_withdraw_estimation(&self, _share: Balance) -> Result<(Balance, Balance), Error> {
+            self.active_pool()?;
+
+            if _share > self.total_shares {
+                return Err(Error::InvalidShare);
+            }
+
+            let amount_token1 = _share * self.total_token1 / self.total_shares;
+            let amount_token2 = _share * self.total_token2 / self.total_shares;
+
+            Ok((amount_token1, amount_token2))
         }
 
         fn valid_amount_check(&self, _balance: Mapping<AccountId, Balance>, _qty: Balance) -> Result<(), Error> {
