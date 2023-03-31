@@ -24,8 +24,27 @@ mod automated_market_maker {
         /// Returns the amount of shares issues for locking assets
         #[ink(message)]
         pub fn provide_liquidity(&mut self, _amount_token1: Balance, _amount_token2: Balance) -> Result<Balance, Error> {
-            // self.valid_amount_check(&self.token1_balance, _amount_token1);
-            todo!()
+            // self.valid_amount_check(&self.token1_balance, _amount_token1)?;
+            
+            let share;
+
+            if self.total_shares == 0 {
+                share = 100 * super::PRECISION;
+            } else {
+                let share_1 = self.total_shares * _amount_token1 / self.total_token1;
+                let share_2 = self.total_shares * _amount_token2 / self.total_token1;
+
+                if share_1 != share_2 {
+                    return Err(Error::NonEquivalentValue);
+                }
+                share = share_1;
+            }
+
+            if share == 0 {
+                return Err(Error::ThresholdNotReached);
+            }
+
+            Ok(share)
         }
 
         fn valid_amount_check(&self, _balance: Mapping<AccountId, Balance>, _qty: Balance) -> Result<(), Error> {
