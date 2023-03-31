@@ -53,11 +53,26 @@ mod automated_market_maker {
             self.total_token1 += _amount_token1;
             self.total_token2 += _amount_token2;
             self.total_shares += share;
-            self.shares
-                .take(caller);
+            // self.shares
+            //     .take(caller)
+            //     .insert(share);
 
 
             Ok(share)
+        }
+
+        /// Returns amount of Token1 required when providing liquidity with _amountToken2 quantity of Token2
+        #[ink(message)]
+        pub fn getEquivalentToken1Estimate(&self, _amount_token2: Balance) -> Result<Balance, Error> {
+            self.active_pool()?;
+            Ok(self.total_token1 * _amount_token2 / self.total_token2)
+        }
+
+        /// Returns amount of Token2 required when providing liquidity with _amountToken1 quantity of Token1
+        #[ink(message)]
+        pub fn getEquivalentToken2Estimate(&self, _amount_token1: Balance) -> Result<Balance, Error> {
+            self.active_pool()?;
+            Ok(self.total_token2 * _amount_token1 / self.total_token1)
         }
 
         fn valid_amount_check(&self, _balance: Mapping<AccountId, Balance>, _qty: Balance) -> Result<(), Error> {
