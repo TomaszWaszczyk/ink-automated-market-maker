@@ -90,6 +90,17 @@ mod automated_market_maker {
             Ok((amount_token1, amount_token2))
         }
 
+        /// Removes liquidity from the pool and releases corresponding token_1 and token_2 to the withdrawer
+        #[ink(message)]
+        pub fn withdraw(&mut self, _share: Balance) -> Result<(Balance, Balance), Error> {
+            // let caller = self.env().caller();
+            // self.valid_amount_check(self.shares, _share)?;
+
+            // let (amount_token1, amount_token2) = self.get_withdraw_estimation(_share)?;
+            // self.shares.take(caller).insert
+            todo!();
+        }
+
         fn valid_amount_check(&self, _balance: Mapping<AccountId, Balance>, _qty: Balance) -> Result<(), Error> {
             let caller = self.env().caller();
             let my_balance = _balance.get(&caller).unwrap_or(0);
