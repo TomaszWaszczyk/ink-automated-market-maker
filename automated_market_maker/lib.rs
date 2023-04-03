@@ -53,12 +53,30 @@ mod automated_market_maker {
             self.total_token1 += _amount_token1;
             self.total_token2 += _amount_token2;
             self.total_shares += share;
-            // self.shares
+            //TODO
+            // self.shares 
             //     .take(caller)
             //     .insert(share);
 
 
             Ok(share)
+        }
+
+        /// Returns the amount of Token2 that the user will get swapping a given amount of Token1 for Token2
+        #[ink(message)]
+        pub fn swap_token1_estimate_given_token2(&self, _amount_token1: Balance) -> Result<Balance, Error> {
+            self.active_pool()?;
+            let _amount_token1 = (1000 - self.fees) * _amount_token1 / 1000;
+
+            let token1_after = self.total_token1 + _amount_token1;
+            let token2_after = self.get_k() / token1_after;
+            let mut amount_token2 = self.total_token2 - token2_after;
+
+            if amount_token2 == self.total_token2 {
+                amount_token2 -= 1;
+            }
+
+            Ok(amount_token2)
         }
 
         /// Returns amount of Token1 required when providing liquidity with _amountToken2 quantity of Token2
