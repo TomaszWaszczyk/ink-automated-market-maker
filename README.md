@@ -3,3 +3,11 @@
 # :dizzy: Building WebAssembly-first Decentralized Exchange :dizzy:
 
 <img src="./resources/dex.jpg" alt="DEX" title="DEX">
+
+# Building smart contract
+
+`cargo +nightly contract build --release`
+
+# Frontend
+
+WIP
