@@ -64,7 +64,7 @@ mod automated_market_maker {
 
         /// Returns the amount of Token2 that the user will get swapping a given amount of Token1 for Token2
         #[ink(message)]
-        pub fn swap_token1_estimate_given_token2(&self, _amount_token1: Balance) -> Result<Balance, Error> {
+        pub fn estimate_swap_token1_for_given_token2(&self, _amount_token1: Balance) -> Result<Balance, Error> {
             self.active_pool()?;
             let _amount_token1 = (1000 - self.fees) * _amount_token1 / 1000;
 
@@ -77,6 +77,22 @@ mod automated_market_maker {
             }
 
             Ok(amount_token2)
+        }
+
+        /// Returns the amount of Token1 that the user should swap to get _amount_token2 in return
+        #[ink(message)]
+        pub fn swap_token1_for_given_token2(&self, _amount_token2: Balance) -> Result<Balance, Error> {
+            self.active_pool()?;
+
+            if _amount_token2 >= self.total_token2 {
+                return Err(Error::InsufficientLiquidity);
+            }
+
+            let token2_after = self.total_token2 - _amount_token2;
+            let token1_after = self.get_k() / token2_after;
+            let amount_token1 = (token1_after - self.total_token1) * 1000 / (1000 - self.fees);
+
+            Ok(amount_token1)
         }
 
         /// Returns amount of Token1 required when providing liquidity with _amountToken2 quantity of Token2
