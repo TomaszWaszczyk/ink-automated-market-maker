@@ -8,11 +8,11 @@ edition = "2021"
 ink = { version = "4.0.2", default-features = false }
 ink_primitives = { version = "4.0.2", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
+scale = { package = "parity-scale-codec", version = "3.5.0", default-features = false, features = ["derive"] }
+scale-info = { version = "2.7.0", default-features = false, features = ["derive"], optional = true }
 
 [dev-dependencies]
-ink_e2e = "4.0.2"
+ink_e2e = "4.2.0"
 
 [lib]
 path = "lib.rs"
