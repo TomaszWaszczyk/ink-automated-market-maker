@@ -6,6 +6,7 @@ const PRECISION: u128 = 1_000_000;
 #[ink::contract]
 mod automated_market_maker {
     use ink::storage::Mapping;
+    use ink_prelude::collections::BTreeMap;
 
 
     #[ink(impl)]
@@ -54,11 +55,11 @@ mod automated_market_maker {
             self.total_token1 += _amount_token1;
             self.total_token2 += _amount_token2;
             self.total_shares += share;
-            //TODO
-            // self.shares 
-            //     .take(caller)
-            //     .insert(share);
 
+            self.shares 
+                .entry(caller)
+                .and_modify(|val| *val += share)
+                .or_insert(share);
 
             Ok(share)
         }
@@ -176,9 +177,9 @@ mod automated_market_maker {
             let caller = self.env().caller();
             let token_1 = self.token1_balance.get(&caller).unwrap_or(0);
             let token_2 = self.token2_balance.get(&caller).unwrap_or(0);
-            let my_shares = self.shares.get(&caller).unwrap_or(0);
+            let my_shares = self.shares.get(&caller).unwrap_or(&0);
 
-            (token_1, token_2, my_shares)
+            (token_1, token_2, *my_shares)
         }
         
         /// Returns the amount of tokens locked in the pool, total shares issued and trading fee parameter
@@ -193,13 +194,13 @@ mod automated_market_maker {
     }
 
     /// Storage struct
-    #[derive(Default)]
     #[ink(storage)]
+    #[derive(Default)]
     pub struct AutomatedMarketMaker {
         total_shares: Balance,                       // Stores the total amount of share issued for the pool
         total_token1: Balance,                       // Stores the amount of Token1 locked in the pool
         total_token2: Balance,                       // Stores the amount of Token2 locked in the pool
-        shares: Mapping<AccountId, Balance>,         // Stores the share holding of each provider
+        shares: BTreeMap<AccountId, Balance>,         // Stores the share holding of each provider
         token1_balance: Mapping<AccountId, Balance>, // Stores the token1 balance of each user
         token2_balance: Mapping<AccountId, Balance>, // Stores the token2 balance of each user
         fees: Balance,                               // Percent of trading fees charged on trade
