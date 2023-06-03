@@ -9,6 +9,19 @@ mod automated_market_maker {
     use ink_prelude::collections::BTreeMap;
 
 
+    /// Storage struct
+    #[ink(storage)]
+    #[derive(Default)]
+    pub struct AutomatedMarketMaker {
+        total_shares: Balance,                       // Stores the total amount of share issued for the pool
+        total_token1: Balance,                       // Stores the amount of Token1 locked in the pool
+        total_token2: Balance,                       // Stores the amount of Token2 locked in the pool
+        shares: BTreeMap<AccountId, Balance>,        // Stores the share holding of each provider
+        token1_balance: Mapping<AccountId, Balance>, // Stores the token1 balance of each user
+        token2_balance: Mapping<AccountId, Balance>, // Stores the token2 balance of each user
+        fees: Balance,                               // Percent of trading fees charged on trade
+    }
+
     #[ink(impl)]
     impl AutomatedMarketMaker {
         /// Constructs a new AMM instance
@@ -191,19 +204,6 @@ mod automated_market_maker {
                 self.fees,
             )
         }
-    }
-
-    /// Storage struct
-    #[ink(storage)]
-    #[derive(Default)]
-    pub struct AutomatedMarketMaker {
-        total_shares: Balance,                       // Stores the total amount of share issued for the pool
-        total_token1: Balance,                       // Stores the amount of Token1 locked in the pool
-        total_token2: Balance,                       // Stores the amount of Token2 locked in the pool
-        shares: BTreeMap<AccountId, Balance>,         // Stores the share holding of each provider
-        token1_balance: Mapping<AccountId, Balance>, // Stores the token1 balance of each user
-        token2_balance: Mapping<AccountId, Balance>, // Stores the token2 balance of each user
-        fees: Balance,                               // Percent of trading fees charged on trade
     }
 
     /// Errors definitions
