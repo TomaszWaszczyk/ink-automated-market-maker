@@ -9,7 +9,8 @@
      \/  \/_/    \_\_____/|_|  |_|   |_|    |_____|_|  \_\_____/   |_|      |_____/|______/_/ \_\
                                                                                                  
 ```
-# :dizzy: Building WebAssembly-first Decentralized Exchange :dizzy:
+
+# :dizzy: Building WebAssembly Decentralized Exchange :dizzy:
 
 <img src="./resources/dex.jpg" alt="DEX" title="DEX">
 
