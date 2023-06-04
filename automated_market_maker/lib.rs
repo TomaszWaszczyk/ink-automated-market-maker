@@ -5,7 +5,6 @@ const PRECISION: u128 = 1_000_000;
 
 #[ink::contract]
 mod automated_market_maker {
-    use ink::storage::Mapping;
     use ink_prelude::collections::BTreeMap;
 
 
@@ -60,10 +59,12 @@ mod automated_market_maker {
             }
 
             let caller = self.env().caller();
-            let token_1 = self.token1_balance.get(&caller).unwrap();
-            let token_2 = self.token1_balance.get(&caller).unwrap();
-            // self.token1_balance.insert(caller, token_1 - _amount_token1);
-            self.token2_balance.insert(caller, token_2 - _amount_token2);
+
+            let _token_1 = self.token1_balance.get(&caller).unwrap();
+            let _token_2 = self.token1_balance.get(&caller).unwrap();
+
+            // self.token1_balance.insert(caller, _token_1 - _amount_token1);
+            self.token2_balance.insert(caller, _token_2 - _amount_token2);
 
             self.total_token1 += _amount_token1;
             self.total_token2 += _amount_token2;
@@ -142,7 +143,7 @@ mod automated_market_maker {
         /// Removes liquidity from the pool and releases corresponding token_1 and token_2 to the withdrawer
         #[ink(message)]
         pub fn withdraw(&mut self, _share: Balance) -> Result<(Balance, Balance), Error> {
-            let caller = self.env().caller();
+            let _caller = self.env().caller();
             // self.valid_amount_check(self.shares, _share)?;
 
             // let (amount_token1, amount_token2) = self.get_withdraw_estimation(_share)?;
@@ -150,13 +151,13 @@ mod automated_market_maker {
             todo!();
         }
 
-        fn valid_amount_check(&self, _balance: Mapping<AccountId, Balance>, _qty: Balance) -> Result<(), Error> {
+        fn valid_amount_check(&self, _balance: BTreeMap<AccountId, Balance>, _qty: Balance) -> Result<(), Error> {
             let caller = self.env().caller();
-            let my_balance = _balance.get(&caller).unwrap_or(0);
+            let my_balance = _balance.get(&caller).unwrap_or(&0);
 
             match _qty {
                 0 => Err(Error::ZeroAmount),
-                _ if (_qty > my_balance) => Err(Error::InsufficientAmount),
+                _ if (_qty > *my_balance) => Err(Error::InsufficientAmount),
                 _ => Ok(()),
             }
         }
