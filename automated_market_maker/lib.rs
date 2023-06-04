@@ -17,8 +17,8 @@ mod automated_market_maker {
         total_token1: Balance,                       // Stores the amount of Token1 locked in the pool
         total_token2: Balance,                       // Stores the amount of Token2 locked in the pool
         shares: BTreeMap<AccountId, Balance>,        // Stores the share holding of each provider
-        token1_balance: Mapping<AccountId, Balance>, // Stores the token1 balance of each user
-        token2_balance: Mapping<AccountId, Balance>, // Stores the token2 balance of each user
+        token1_balance: BTreeMap<AccountId, Balance>, // Stores the token1 balance of each user
+        token2_balance: BTreeMap<AccountId, Balance>, // Stores the token2 balance of each user
         fees: Balance,                               // Percent of trading fees charged on trade
     }
 
@@ -62,8 +62,8 @@ mod automated_market_maker {
             let caller = self.env().caller();
             let token_1 = self.token1_balance.get(&caller).unwrap();
             let token_2 = self.token1_balance.get(&caller).unwrap();
-            self.token1_balance.insert(caller, &(token_1 - _amount_token1));
-            self.token2_balance.insert(caller, &(token_2 - _amount_token2));
+            // self.token1_balance.insert(caller, token_1 - _amount_token1);
+            self.token2_balance.insert(caller, token_2 - _amount_token2);
 
             self.total_token1 += _amount_token1;
             self.total_token2 += _amount_token2;
@@ -165,11 +165,11 @@ mod automated_market_maker {
         #[ink(message)]
         pub fn faucet(&mut self, _amount_token1: Balance, _amount_token2: Balance) {
             let caller = self.env().caller();
-            let token1 = self.token1_balance.get(&caller).unwrap_or(0);
-            let token2 = self.token2_balance.get(&caller).unwrap_or(0);
+            let token1 = self.token1_balance.get(&caller).unwrap_or(&0);
+            let token2 = self.token2_balance.get(&caller).unwrap_or(&0);
 
-            self.token1_balance.insert(caller, &(token1 + _amount_token1));
-            self.token2_balance.insert(caller, &(token2 + _amount_token2));
+            self.token1_balance.insert(caller, token1 + _amount_token1);
+            self.token2_balance.insert(caller, token2 + _amount_token2);
         }
 
         /// Returns the liquidity constant of the pool
@@ -188,11 +188,11 @@ mod automated_market_maker {
         /// Returns the balance of the user
         pub fn get_info_about_holdings(&self) -> (Balance, Balance, Balance) {
             let caller = self.env().caller();
-            let token_1 = self.token1_balance.get(&caller).unwrap_or(0);
-            let token_2 = self.token2_balance.get(&caller).unwrap_or(0);
+            let token_1 = self.token1_balance.get(&caller).unwrap_or(&0);
+            let token_2 = self.token2_balance.get(&caller).unwrap_or(&0);
             let my_shares = self.shares.get(&caller).unwrap_or(&0);
 
-            (token_1, token_2, *my_shares)
+            (*token_1, *token_2, *my_shares)
         }
         
         /// Returns the amount of tokens locked in the pool, total shares issued and trading fee parameter
