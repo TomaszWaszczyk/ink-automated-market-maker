@@ -63,7 +63,7 @@ mod automated_market_maker {
             let _token_1 = self.token1_balance.get(&caller).unwrap();
             let _token_2 = self.token1_balance.get(&caller).unwrap();
 
-            // self.token1_balance.insert(caller, _token_1 - _amount_token1);
+            self.token1_balance.clone().insert(caller, _token_1 - _amount_token1);
             self.token2_balance.insert(caller, _token_2 - _amount_token2);
 
             self.total_token1 += _amount_token1;
