@@ -51,7 +51,7 @@ mod automated_market_maker {
                 let share_2 = self.total_shares * _amount_token2 / self.total_token1;
 
                 if share_1 != share_2 {
-                    return Err(Error::NonEquivalentValue(
+                    return Err(Error::NonEquivalentValueErr(
                         "Provided not equivalent of value of tokens".to_string(),
                     ));
                 }
@@ -104,7 +104,9 @@ mod automated_market_maker {
             self.active_pool()?;
 
             if _amount_token2 >= self.total_token2 {
-                return Err(Error::InsufficientLiquidity);
+                return Err(Error::InsufficientLiquidityErr(
+                    "No sufficient pool balance".to_string(),
+                ));
             }
 
             let token2_after = self.total_token2 - _amount_token2;
@@ -134,7 +136,9 @@ mod automated_market_maker {
             self.active_pool()?;
 
             if _share > self.total_shares {
-                return Err(Error::InvalidShare);
+                return Err(Error::InvalidShareErr(
+                    "Amount of shares should be greater than total shares".to_string(),
+                ));
             }
 
             let amount_token1 = _share * self.total_token1 / self.total_shares;
@@ -163,8 +167,10 @@ mod automated_market_maker {
             let my_balance = _balance.get(&caller).unwrap_or(&0);
 
             match _qty {
-                0 => Err(Error::ZeroAmount),
-                _ if (_qty > *my_balance) => Err(Error::InsufficientAmount),
+                0 => Err(Error::ZeroAmountErr("Value cannot be zero!".to_string())),
+                _ if (_qty > *my_balance) => Err(Error::InsufficientAmount(
+                    "You have no sufficient amount of value".to_string(),
+                )),
                 _ => Ok(()),
             }
         }
@@ -188,7 +194,7 @@ mod automated_market_maker {
         /// Restriction of withdrawing and swapping feature till liquidity is added to the pool
         fn active_pool(&self) -> Result<(), Error> {
             match self.get_k() {
-                0 => Err(Error::ZeroLiquidity(
+                0 => Err(Error::ZeroLiquidityErr(
                     "You have no liquidity and there is no way to make BRRR".to_string(),
                 )),
                 _ => Ok(()),
@@ -215,14 +221,14 @@ mod automated_market_maker {
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
-        ZeroAmount,
-        ZeroLiquidity(String),
-        InsufficientAmount,
-        NonEquivalentValue(String),
-        ThresholdNotReached,
-        InvalidShare,
-        InsufficientLiquidity,
-        SlippageExceeded,
+        ZeroAmountErr(String),
+        ZeroLiquidityErr(String),
+        InsufficientAmount(String),
+        NonEquivalentValueErr(String),
+        ThresholdNotReachedErr(String),
+        InvalidShareErr(String),
+        InsufficientLiquidityErr(String),
+        SlippageExceededErr(String),
     }
 
     /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
