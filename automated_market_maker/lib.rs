@@ -3,7 +3,7 @@
 const PRECISION: u128 = 1_000_000;
 
 #[ink::contract]
-mod automated_market_maker {
+pub mod automated_market_maker {
     use ink_prelude::collections::BTreeMap;
 
     /// Storage

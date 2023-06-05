@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use automated_market_maker::automated_market_maker::{AutomatedMarketMaker};
 
     #[test]
     fn create_new_contract_test() {
-        // let contract = AutomatedMarketMaker::new(0);
+        let amm_contract = AutomatedMarketMaker::new(0);
     }
 }
