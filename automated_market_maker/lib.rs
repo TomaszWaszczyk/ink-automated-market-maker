@@ -214,21 +214,21 @@ pub mod automated_market_maker {
             }
         }
 
-        /// Returns the balance of the user
-        pub fn get_info_about_holdings(&self) -> (Balance, Balance, Balance) {
+        /// Returns the balance of a user
+        pub fn get_information_portfolio(&self) -> (Balance, Balance, Balance) {
             let _caller = self.env().caller();
             let token_1 = self.token1_balance.get(&_caller).unwrap_or(&0);
             let token_2 = self.token2_balance.get(&_caller).unwrap_or(&0);
-            let my_shares = self.shares.get(&_caller).unwrap_or(&0);
+            let user_shares = self.shares.get(&_caller).unwrap_or(&0);
 
-            (*token_1, *token_2, *my_shares)
+            (*token_1, *token_2, *user_shares)
         }
 
         /// Returns the amount of tokens locked in the pool, total shares issued and trading fee parameter
         pub fn get_pool_details(&self) -> (Balance, Balance, Balance, Balance) {
             (self.total_token1, self.total_token2, self.total_shares, self.fees)
         }
-    } //--LAST LINE OF IMPLEMENTATION OF THE INK! SMART CONTRACT--//
+    } //---LAST LINE OF IMPLEMENTATION OF THE INK! SMART CONTRACT---//
 
     /// Errors definitions
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
