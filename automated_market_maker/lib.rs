@@ -84,7 +84,7 @@ pub mod automated_market_maker {
             &self,
             _amount_token1: Balance,
         ) -> Result<Balance, Error> {
-            self.active_pool()?;
+            self.restrict_active_pool()?;
             let _amount_token1 = (1000 - self.fees) * _amount_token1 / 1000;
 
             let token1_after = self.total_token1 + _amount_token1;
@@ -101,7 +101,7 @@ pub mod automated_market_maker {
         /// Returns the amount of token1 that the user should swap to get _amount_token2 in return
         #[ink(message)]
         pub fn swap_token1_for_given_token2(&self, _amount_token2: Balance) -> Result<Balance, Error> {
-            self.active_pool()?;
+            self.restrict_active_pool()?;
 
             if _amount_token2 >= self.total_token2 {
                 return Err(Error::InsufficientLiquidityErr(
@@ -119,21 +119,21 @@ pub mod automated_market_maker {
         /// Returns amount of token1 required when providing liquidity with _amount_token2 quantity of token2
         #[ink(message)]
         pub fn get_equivalent_token1_estimate(&self, _amount_token2: Balance) -> Result<Balance, Error> {
-            self.active_pool()?;
+            self.restrict_active_pool()?;
             Ok(self.total_token1 * _amount_token2 / self.total_token2)
         }
 
         /// Returns amount of token2 required when providing liquidity with _amount_token1 quantity of token1
         #[ink(message)]
         pub fn get_equivalent_token2_estimate(&self, _amount_token1: Balance) -> Result<Balance, Error> {
-            self.active_pool()?;
+            self.restrict_active_pool()?;
             Ok(self.total_token2 * _amount_token1 / self.total_token1)
         }
 
         /// Returns estimation of token1 and token2 that will be released on burning given _share
         #[ink(message)]
         pub fn get_withdraw_estimation(&self, _share: Balance) -> Result<(Balance, Balance), Error> {
-            self.active_pool()?;
+            self.restrict_active_pool()?;
 
             if _share > self.total_shares {
                 return Err(Error::InvalidShareErr(
@@ -170,17 +170,18 @@ pub mod automated_market_maker {
             Ok((amount_token1, amount_token2))
         }
 
+        /// Ensure that quantity is non-zero and user has enough balance
         fn check_valid_amount(
             &self,
             _balance: BTreeMap<AccountId, Balance>,
-            _qty: Balance,
+            _quantity: Balance,
         ) -> Result<(), Error> {
-            let caller = self.env().caller();
-            let my_balance = _balance.get(&caller).unwrap_or(&0);
+            let _caller = self.env().caller();
+            let my_balance = _balance.get(&_caller).unwrap_or(&0);
 
-            match _qty {
+            match _quantity {
                 0 => Err(Error::ZeroAmountErr("Value cannot be zero!".to_string())),
-                _ if (_qty > *my_balance) => Err(Error::InsufficientAmount(
+                _ if (_quantity > *my_balance) => Err(Error::InsufficientAmount(
                     "You have no sufficient amount of value".to_string(),
                 )),
                 _ => Ok(()),
@@ -190,21 +191,21 @@ pub mod automated_market_maker {
         /// Sends free token(s) to the invoker
         #[ink(message)]
         pub fn faucet(&mut self, _amount_token1: Balance, _amount_token2: Balance) {
-            let caller = self.env().caller();
-            let token1 = self.token1_balance.get(&caller).unwrap_or(&0);
-            let token2 = self.token2_balance.get(&caller).unwrap_or(&0);
+            let _caller = self.env().caller();
+            let token1 = self.token1_balance.get(&_caller).unwrap_or(&0);
+            let token2 = self.token2_balance.get(&_caller).unwrap_or(&0);
 
-            self.token1_balance.insert(caller, token1 + _amount_token1);
-            self.token2_balance.insert(caller, token2 + _amount_token2);
+            self.token1_balance.insert(_caller, token1 + _amount_token1);
+            self.token2_balance.insert(_caller, token2 + _amount_token2);
         }
 
-        /// Returns the liquidity constant of the pool
+        /// Returns the liquidity constant of a pool
         fn get_k(&self) -> Balance {
             self.total_token1 * self.total_token2
         }
 
-        /// Restriction of withdrawing and swapping feature till liquidity is added to the pool
-        fn active_pool(&self) -> Result<(), Error> {
+        /// Restriction of withdrawing and swapping feature till liquidity is added to a pool
+        fn restrict_active_pool(&self) -> Result<(), Error> {
             match self.get_k() {
                 0 => Err(Error::ZeroLiquidityErr(
                     "You have no liquidity and there is no way to make BRRR".to_string(),
@@ -215,10 +216,10 @@ pub mod automated_market_maker {
 
         /// Returns the balance of the user
         pub fn get_info_about_holdings(&self) -> (Balance, Balance, Balance) {
-            let caller = self.env().caller();
-            let token_1 = self.token1_balance.get(&caller).unwrap_or(&0);
-            let token_2 = self.token2_balance.get(&caller).unwrap_or(&0);
-            let my_shares = self.shares.get(&caller).unwrap_or(&0);
+            let _caller = self.env().caller();
+            let token_1 = self.token1_balance.get(&_caller).unwrap_or(&0);
+            let token_2 = self.token2_balance.get(&_caller).unwrap_or(&0);
+            let my_shares = self.shares.get(&_caller).unwrap_or(&0);
 
             (*token_1, *token_2, *my_shares)
         }
@@ -227,7 +228,7 @@ pub mod automated_market_maker {
         pub fn get_pool_details(&self) -> (Balance, Balance, Balance, Balance) {
             (self.total_token1, self.total_token2, self.total_shares, self.fees)
         }
-    }
+    } //--LAST LINE OF IMPLEMENTATION OF THE INK! SMART CONTRACT--//
 
     /// Errors definitions
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
