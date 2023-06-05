@@ -10,13 +10,13 @@ mod automated_market_maker {
     #[ink(storage)]
     #[derive(Default)]
     pub struct AutomatedMarketMaker {
-        total_shares: Balance, // Stores the total amount of share issued for the pool
-        total_token1: Balance, // Stores the amount of Token1 locked in the pool
-        total_token2: Balance, // Stores the amount of Token2 locked in the pool
-        shares: BTreeMap<AccountId, Balance>, // Stores the share holding of each provider
+        fees: Balance,                                // Percent of trading fees charged on every trade
+        total_token1: Balance,                        // Stores the amount of token1 locked in the pool
+        total_token2: Balance,                        // Stores the amount of token2 locked in the pool
         token1_balance: BTreeMap<AccountId, Balance>, // Stores the token1 balance of each user
         token2_balance: BTreeMap<AccountId, Balance>, // Stores the token2 balance of each user
-        fees: Balance,         // Percent of trading fees charged on trade
+        shares: BTreeMap<AccountId, Balance>,         // Stores the share holding of each provider
+        total_shares: Balance,                        // Stores the total amount of share issued for the pool
     }
 
     #[ink(impl)]
