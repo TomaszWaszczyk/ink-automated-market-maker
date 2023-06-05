@@ -16,7 +16,11 @@
 
 # Building smart contract
 
-`cargo +nightly contract build --release`
+```bash
+git clone git@github.com:TomaszWaszczyk/ink-automated-market-maker.git
+cd ink-automated-market-maker/automated-market-maker
+cargo +nightly build --release
+```
 
 # Frontend
 
