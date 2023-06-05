@@ -153,9 +153,21 @@ mod automated_market_maker {
             let _caller = self.env().caller();
             self.valid_amount_check(self.shares.clone(), _share)?;
 
-            // let (amount_token1, amount_token2) = self.get_withdraw_estimation(_share)?;
-            // self.shares.take(caller).insert
-            todo!();
+            let (amount_token1, amount_token2) = self.get_withdraw_estimation(_share)?;
+            self.shares.entry(_caller).and_modify(|val| *val -= _share);
+            self.total_shares -= _share;
+
+            self.total_token1 -= amount_token1;
+            self.total_token2 -= amount_token2;
+
+            self.token1_balance
+                .entry(_caller)
+                .and_modify(|val| *val += amount_token1);
+            self.token2_balance
+                .entry(_caller)
+                .and_modify(|val| *val += amount_token2);
+
+            Ok((amount_token1, amount_token2))
         }
 
         fn valid_amount_check(
