@@ -1,5 +1,5 @@
 edition = "2021"
-max_width = 90
+max_width = 110
 indent_style = "Block"
 fn_single_line = false
 imports_granularity = "Crate"
