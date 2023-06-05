@@ -6,5 +6,4 @@ mod tests {
     fn create_new_contract_test() {
         // let contract = AutomatedMarketMaker::new(0);
     }
-
 }

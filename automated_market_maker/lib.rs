@@ -2,23 +2,21 @@
 
 const PRECISION: u128 = 1_000_000;
 
-
 #[ink::contract]
 mod automated_market_maker {
     use ink_prelude::collections::BTreeMap;
-
 
     /// Storage struct
     #[ink(storage)]
     #[derive(Default)]
     pub struct AutomatedMarketMaker {
-        total_shares: Balance,                       // Stores the total amount of share issued for the pool
-        total_token1: Balance,                       // Stores the amount of Token1 locked in the pool
-        total_token2: Balance,                       // Stores the amount of Token2 locked in the pool
-        shares: BTreeMap<AccountId, Balance>,        // Stores the share holding of each provider
+        total_shares: Balance, // Stores the total amount of share issued for the pool
+        total_token1: Balance, // Stores the amount of Token1 locked in the pool
+        total_token2: Balance, // Stores the amount of Token2 locked in the pool
+        shares: BTreeMap<AccountId, Balance>, // Stores the share holding of each provider
         token1_balance: BTreeMap<AccountId, Balance>, // Stores the token1 balance of each user
         token2_balance: BTreeMap<AccountId, Balance>, // Stores the token2 balance of each user
-        fees: Balance,                               // Percent of trading fees charged on trade
+        fees: Balance, // Percent of trading fees charged on trade
     }
 
     #[ink(impl)]
@@ -36,8 +34,11 @@ mod automated_market_maker {
         /// Providing new liquidity to the pool
         /// Returns the amount of shares issues for locking assets
         #[ink(message)]
-        pub fn provide_liquidity(&mut self, _amount_token1: Balance, _amount_token2: Balance) -> Result<Balance, Error> {
-
+        pub fn provide_liquidity(
+            &mut self,
+            _amount_token1: Balance,
+            _amount_token2: Balance,
+        ) -> Result<Balance, Error> {
             self.valid_amount_check(self.token1_balance.clone(), _amount_token1)?;
 
             let share;
@@ -63,14 +64,17 @@ mod automated_market_maker {
             let _token_1 = self.token1_balance.get(&caller).unwrap();
             let _token_2 = self.token1_balance.get(&caller).unwrap();
 
-            self.token1_balance.clone().insert(caller, _token_1 - _amount_token1);
-            self.token2_balance.insert(caller, _token_2 - _amount_token2);
+            self.token1_balance
+                .clone()
+                .insert(caller, _token_1 - _amount_token1);
+            self.token2_balance
+                .insert(caller, _token_2 - _amount_token2);
 
             self.total_token1 += _amount_token1;
             self.total_token2 += _amount_token2;
             self.total_shares += share;
 
-            self.shares 
+            self.shares
                 .entry(caller)
                 .and_modify(|val| *val += share)
                 .or_insert(share);
@@ -80,7 +84,10 @@ mod automated_market_maker {
 
         /// Returns the amount of Token2 that the user will get swapping a given amount of Token1 for Token2
         #[ink(message)]
-        pub fn estimate_swap_token1_for_given_token2(&self, _amount_token1: Balance) -> Result<Balance, Error> {
+        pub fn estimate_swap_token1_for_given_token2(
+            &self,
+            _amount_token1: Balance,
+        ) -> Result<Balance, Error> {
             self.active_pool()?;
             let _amount_token1 = (1000 - self.fees) * _amount_token1 / 1000;
 
@@ -97,7 +104,10 @@ mod automated_market_maker {
 
         /// Returns the amount of Token1 that the user should swap to get _amount_token2 in return
         #[ink(message)]
-        pub fn swap_token1_for_given_token2(&self, _amount_token2: Balance) -> Result<Balance, Error> {
+        pub fn swap_token1_for_given_token2(
+            &self,
+            _amount_token2: Balance,
+        ) -> Result<Balance, Error> {
             self.active_pool()?;
 
             if _amount_token2 >= self.total_token2 {
@@ -106,28 +116,38 @@ mod automated_market_maker {
 
             let token2_after = self.total_token2 - _amount_token2;
             let token1_after = self.get_k() / token2_after;
-            let amount_token1 = (token1_after - self.total_token1) * 1000 / (1000 - self.fees);
+            let amount_token1 =
+                (token1_after - self.total_token1) * 1000 / (1000 - self.fees);
 
             Ok(amount_token1)
         }
 
         /// Returns amount of Token1 required when providing liquidity with _amountToken2 quantity of Token2
         #[ink(message)]
-        pub fn get_equivalent_token1_estimate(&self, _amount_token2: Balance) -> Result<Balance, Error> {
+        pub fn get_equivalent_token1_estimate(
+            &self,
+            _amount_token2: Balance,
+        ) -> Result<Balance, Error> {
             self.active_pool()?;
             Ok(self.total_token1 * _amount_token2 / self.total_token2)
         }
 
         /// Returns amount of Token2 required when providing liquidity with _amountToken1 quantity of Token1
         #[ink(message)]
-        pub fn get_equivalent_token2_estimate(&self, _amount_token1: Balance) -> Result<Balance, Error> {
+        pub fn get_equivalent_token2_estimate(
+            &self,
+            _amount_token1: Balance,
+        ) -> Result<Balance, Error> {
             self.active_pool()?;
             Ok(self.total_token2 * _amount_token1 / self.total_token1)
         }
 
         /// Returns estimation of token 1 and token 2 that will be released on burning given _share
         #[ink(message)]
-        pub fn get_withdraw_estimation(&self, _share: Balance) -> Result<(Balance, Balance), Error> {
+        pub fn get_withdraw_estimation(
+            &self,
+            _share: Balance,
+        ) -> Result<(Balance, Balance), Error> {
             self.active_pool()?;
 
             if _share > self.total_shares {
@@ -151,7 +171,11 @@ mod automated_market_maker {
             todo!();
         }
 
-        fn valid_amount_check(&self, _balance: BTreeMap<AccountId, Balance>, _qty: Balance) -> Result<(), Error> {
+        fn valid_amount_check(
+            &self,
+            _balance: BTreeMap<AccountId, Balance>,
+            _qty: Balance,
+        ) -> Result<(), Error> {
             let caller = self.env().caller();
             let my_balance = _balance.get(&caller).unwrap_or(&0);
 
@@ -195,7 +219,7 @@ mod automated_market_maker {
 
             (*token_1, *token_2, *my_shares)
         }
-        
+
         /// Returns the amount of tokens locked in the pool, total shares issued and trading fee parameter
         pub fn get_pool_details(&self) -> (Balance, Balance, Balance, Balance) {
             (
@@ -220,7 +244,6 @@ mod automated_market_maker {
         InsufficientLiquidity,
         SlippageExceeded,
     }
-
 
     /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
     ///
@@ -258,8 +281,9 @@ mod automated_market_maker {
                 .account_id;
 
             // Then
-            let get = build_message::<AutomatedMarketMakerRef>(contract_account_id.clone())
-                .call(|automated_market_maker| automated_market_maker.get());
+            let get =
+                build_message::<AutomatedMarketMakerRef>(contract_account_id.clone())
+                    .call(|automated_market_maker| automated_market_maker.get());
             let get_result = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
             assert!(matches!(get_result.return_value(), false));
 
@@ -283,22 +307,25 @@ mod automated_market_maker {
                 .expect("instantiate failed")
                 .account_id;
 
-            let get = build_message::<AutomatedMarketMakerRef>(contract_account_id.clone())
-                .call(|automated_market_maker| automated_market_maker.get());
+            let get =
+                build_message::<AutomatedMarketMakerRef>(contract_account_id.clone())
+                    .call(|automated_market_maker| automated_market_maker.get());
             let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
             assert!(matches!(get_result.return_value(), false));
 
             // When
-            let flip = build_message::<AutomatedMarketMakerRef>(contract_account_id.clone())
-                .call(|automated_market_maker| automated_market_maker.flip());
+            let flip =
+                build_message::<AutomatedMarketMakerRef>(contract_account_id.clone())
+                    .call(|automated_market_maker| automated_market_maker.flip());
             let _flip_result = client
                 .call(&ink_e2e::bob(), flip, 0, None)
                 .await
                 .expect("flip failed");
 
             // Then
-            let get = build_message::<AutomatedMarketMakerRef>(contract_account_id.clone())
-                .call(|automated_market_maker| automated_market_maker.get());
+            let get =
+                build_message::<AutomatedMarketMakerRef>(contract_account_id.clone())
+                    .call(|automated_market_maker| automated_market_maker.get());
             let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
             assert!(matches!(get_result.return_value(), true));
 

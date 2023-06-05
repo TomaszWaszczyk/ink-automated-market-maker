@@ -1,0 +1,4 @@
+max_width = 90
+indent_style = "Block"
+fn_single_line = false
+edition = "2021"
