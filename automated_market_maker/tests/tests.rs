@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use automated_market_maker::automated_market_maker::{AutomatedMarketMaker};
+    use automated_market_maker::automated_market_maker::AutomatedMarketMaker;
 
     #[test]
     fn create_new_contract_test() {
