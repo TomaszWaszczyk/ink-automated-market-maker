@@ -72,7 +72,7 @@ mod automated_market_maker {
 
             self.shares
                 .entry(_caller)
-                .and_modify(|val| *val += _share)
+                .and_modify(|value| *value += _share)
                 .or_insert(_share);
 
             Ok(_share)
@@ -154,7 +154,7 @@ mod automated_market_maker {
             self.valid_amount_check(self.shares.clone(), _share)?;
 
             let (amount_token1, amount_token2) = self.get_withdraw_estimation(_share)?;
-            self.shares.entry(_caller).and_modify(|val| *val -= _share);
+            self.shares.entry(_caller).and_modify(|value| *value -= _share);
             self.total_shares -= _share;
 
             self.total_token1 -= amount_token1;
@@ -162,10 +162,10 @@ mod automated_market_maker {
 
             self.token1_balance
                 .entry(_caller)
-                .and_modify(|val| *val += amount_token1);
+                .and_modify(|value| *value += amount_token1);
             self.token2_balance
                 .entry(_caller)
-                .and_modify(|val| *val += amount_token2);
+                .and_modify(|value| *value += amount_token2);
 
             Ok((amount_token1, amount_token2))
         }
