@@ -6,7 +6,7 @@ const PRECISION: u128 = 1_000_000;
 mod automated_market_maker {
     use ink_prelude::collections::BTreeMap;
 
-    /// Storage struct
+    /// Storage
     #[ink(storage)]
     #[derive(Default)]
     pub struct AutomatedMarketMaker {
@@ -21,7 +21,7 @@ mod automated_market_maker {
 
     #[ink(impl)]
     impl AutomatedMarketMaker {
-        /// Constructs a new AMM instance
+        /// Instantiating AMM instance
         /// @param _fees: valid interval -> [0,1000)
         #[ink(constructor)]
         pub fn new(_fees: Balance) -> Self {
@@ -39,13 +39,13 @@ mod automated_market_maker {
             _amount_token1: Balance,
             _amount_token2: Balance,
         ) -> Result<Balance, Error> {
-            self.valid_amount_check(self.token1_balance.clone(), _amount_token1)?;
+            self.check_valid_amount(self.token1_balance.clone(), _amount_token1)?;
 
             let _caller = self.env().caller();
-            let _share: u128;
+            let _issued_shares: u128;
 
             if self.total_shares == 0 {
-                _share = 100 * super::PRECISION;
+                _issued_shares = 100 * super::PRECISION;
             } else {
                 let share_1 = self.total_shares * _amount_token1 / self.total_token1;
                 let share_2 = self.total_shares * _amount_token2 / self.total_token1;
@@ -55,7 +55,7 @@ mod automated_market_maker {
                         "Provided not equivalent of value of tokens".to_string(),
                     ));
                 }
-                _share = share_1;
+                _issued_shares = share_1;
             };
 
             let _token_1 = self.token1_balance.get(&_caller).unwrap();
@@ -68,17 +68,17 @@ mod automated_market_maker {
 
             self.total_token1 += _amount_token1;
             self.total_token2 += _amount_token2;
-            self.total_shares += _share;
+            self.total_shares += _issued_shares;
 
             self.shares
                 .entry(_caller)
-                .and_modify(|value| *value += _share)
-                .or_insert(_share);
+                .and_modify(|value| *value += _issued_shares)
+                .or_insert(_issued_shares);
 
-            Ok(_share)
+            Ok(_issued_shares)
         }
 
-        /// Returns the amount of Token2 that the user will get swapping a given amount of Token1 for Token2
+        /// Returns the amount of token2 that the user will get swapping a given amount of token1 for token2
         #[ink(message)]
         pub fn estimate_swap_token1_for_given_token2(
             &self,
@@ -98,7 +98,7 @@ mod automated_market_maker {
             Ok(amount_token2)
         }
 
-        /// Returns the amount of Token1 that the user should swap to get _amount_token2 in return
+        /// Returns the amount of token1 that the user should swap to get _amount_token2 in return
         #[ink(message)]
         pub fn swap_token1_for_given_token2(&self, _amount_token2: Balance) -> Result<Balance, Error> {
             self.active_pool()?;
@@ -116,21 +116,21 @@ mod automated_market_maker {
             Ok(amount_token1)
         }
 
-        /// Returns amount of Token1 required when providing liquidity with _amountToken2 quantity of Token2
+        /// Returns amount of token1 required when providing liquidity with _amount_token2 quantity of token2
         #[ink(message)]
         pub fn get_equivalent_token1_estimate(&self, _amount_token2: Balance) -> Result<Balance, Error> {
             self.active_pool()?;
             Ok(self.total_token1 * _amount_token2 / self.total_token2)
         }
 
-        /// Returns amount of Token2 required when providing liquidity with _amountToken1 quantity of Token1
+        /// Returns amount of token2 required when providing liquidity with _amount_token1 quantity of token1
         #[ink(message)]
         pub fn get_equivalent_token2_estimate(&self, _amount_token1: Balance) -> Result<Balance, Error> {
             self.active_pool()?;
             Ok(self.total_token2 * _amount_token1 / self.total_token1)
         }
 
-        /// Returns estimation of token 1 and token 2 that will be released on burning given _share
+        /// Returns estimation of token1 and token2 that will be released on burning given _share
         #[ink(message)]
         pub fn get_withdraw_estimation(&self, _share: Balance) -> Result<(Balance, Balance), Error> {
             self.active_pool()?;
@@ -151,7 +151,7 @@ mod automated_market_maker {
         #[ink(message)]
         pub fn withdraw(&mut self, _share: Balance) -> Result<(Balance, Balance), Error> {
             let _caller = self.env().caller();
-            self.valid_amount_check(self.shares.clone(), _share)?;
+            self.check_valid_amount(self.shares.clone(), _share)?;
 
             let (amount_token1, amount_token2) = self.get_withdraw_estimation(_share)?;
             self.shares.entry(_caller).and_modify(|value| *value -= _share);
@@ -170,7 +170,7 @@ mod automated_market_maker {
             Ok((amount_token1, amount_token2))
         }
 
-        fn valid_amount_check(
+        fn check_valid_amount(
             &self,
             _balance: BTreeMap<AccountId, Balance>,
             _qty: Balance,
