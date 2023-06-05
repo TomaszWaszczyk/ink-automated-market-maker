@@ -181,7 +181,7 @@ pub mod automated_market_maker {
 
             match _quantity {
                 0 => Err(Error::ZeroAmountErr("Value cannot be zero!".to_string())),
-                _ if (_quantity > *my_balance) => Err(Error::InsufficientAmount(
+                _ if (_quantity > *my_balance) => Err(Error::InsufficientAmountErr(
                     "You have no sufficient amount of value".to_string(),
                 )),
                 _ => Ok(()),
@@ -235,12 +235,12 @@ pub mod automated_market_maker {
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
         ZeroAmountErr(String),
+        InvalidShareErr(String),
         ZeroLiquidityErr(String),
-        InsufficientAmount(String),
+        SlippageExceededErr(String),
+        InsufficientAmountErr(String),
         NonEquivalentValueErr(String),
         ThresholdNotReachedErr(String),
-        InvalidShareErr(String),
         InsufficientLiquidityErr(String),
-        SlippageExceededErr(String),
     }
 }
