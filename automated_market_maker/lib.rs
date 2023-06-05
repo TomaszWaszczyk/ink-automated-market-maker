@@ -41,45 +41,42 @@ mod automated_market_maker {
         ) -> Result<Balance, Error> {
             self.valid_amount_check(self.token1_balance.clone(), _amount_token1)?;
 
-            let share;
+            let _caller = self.env().caller();
+            let _share: u128;
 
             if self.total_shares == 0 {
-                share = 100 * super::PRECISION;
+                _share = 100 * super::PRECISION;
             } else {
                 let share_1 = self.total_shares * _amount_token1 / self.total_token1;
                 let share_2 = self.total_shares * _amount_token2 / self.total_token1;
 
                 if share_1 != share_2 {
-                    return Err(Error::NonEquivalentValue);
+                    return Err(Error::NonEquivalentValue(
+                        "Provided not equivalent of value of tokens".to_string(),
+                    ));
                 }
-                share = share_1;
+                _share = share_1;
             };
 
-            if share == 0 {
-                return Err(Error::ThresholdNotReached);
-            }
-
-            let caller = self.env().caller();
-
-            let _token_1 = self.token1_balance.get(&caller).unwrap();
-            let _token_2 = self.token1_balance.get(&caller).unwrap();
+            let _token_1 = self.token1_balance.get(&_caller).unwrap();
+            let _token_2 = self.token1_balance.get(&_caller).unwrap();
 
             self.token1_balance
                 .clone()
-                .insert(caller, _token_1 - _amount_token1);
+                .insert(_caller, _token_1 - _amount_token1);
             self.token2_balance
-                .insert(caller, _token_2 - _amount_token2);
+                .insert(_caller, _token_2 - _amount_token2);
 
             self.total_token1 += _amount_token1;
             self.total_token2 += _amount_token2;
-            self.total_shares += share;
+            self.total_shares += _share;
 
             self.shares
-                .entry(caller)
-                .and_modify(|val| *val += share)
-                .or_insert(share);
+                .entry(_caller)
+                .and_modify(|val| *val += _share)
+                .or_insert(_share);
 
-            Ok(share)
+            Ok(_share)
         }
 
         /// Returns the amount of Token2 that the user will get swapping a given amount of Token1 for Token2
@@ -205,7 +202,9 @@ mod automated_market_maker {
         /// Restriction of withdrawing and swapping feature till liquidity is added to the pool
         fn active_pool(&self) -> Result<(), Error> {
             match self.get_k() {
-                0 => Err(Error::ZeroLiquidity),
+                0 => Err(Error::ZeroLiquidity(
+                    "You have no liquidity and there is no way to make BRRR".to_string(),
+                )),
                 _ => Ok(()),
             }
         }
@@ -236,9 +235,9 @@ mod automated_market_maker {
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
         ZeroAmount,
-        ZeroLiquidity,
+        ZeroLiquidity(String),
         InsufficientAmount,
-        NonEquivalentValue,
+        NonEquivalentValue(String),
         ThresholdNotReached,
         InvalidShare,
         InsufficientLiquidity,
