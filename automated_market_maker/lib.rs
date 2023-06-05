@@ -53,7 +53,7 @@ mod automated_market_maker {
                     return Err(Error::NonEquivalentValue);
                 }
                 share = share_1;
-            }
+            };
 
             if share == 0 {
                 return Err(Error::ThresholdNotReached);
