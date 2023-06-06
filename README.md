@@ -14,7 +14,7 @@
 
 <img src="./resources/dex.jpg" alt="DEX" title="DEX">
 
-# Building smart contract
+# Building the smart contract
 
 ```bash
 git clone git@github.com:TomaszWaszczyk/ink-automated-market-maker.git
