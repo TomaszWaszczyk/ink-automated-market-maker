@@ -4,6 +4,8 @@ mod tests {
 
     #[test]
     fn create_new_contract_test() {
-        let amm_contract = AutomatedMarketMaker::new(0);
+        let mut amm_contract = AutomatedMarketMaker::new(0);
+        // amm_contract.faucet(10, 20);
+        // assert_eq!(amm_contract.get_information_portfolio(), (10, 20, 0));
     }
 }

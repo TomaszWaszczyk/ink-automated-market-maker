@@ -45,7 +45,7 @@ pub mod automated_market_maker {
             let _issued_shares: u128;
 
             if self.total_shares == 0 {
-                _issued_shares = 100 * super::PRECISION;
+                _issued_shares = 1000 * super::PRECISION;
             } else {
                 let share_1 = self.total_shares * _amount_token1 / self.pool_total_token1;
                 let share_2 = self.total_shares * _amount_token2 / self.pool_total_token1;
@@ -177,11 +177,11 @@ pub mod automated_market_maker {
             _quantity: Balance,
         ) -> Result<(), Error> {
             let _caller = self.env().caller();
-            let my_balance = _balance.get(&_caller).unwrap_or(&0);
+            let balance_user = _balance.get(&_caller).unwrap_or(&0);
 
             match _quantity {
                 0 => Err(Error::ZeroAmountErr("Value cannot be zero!".to_string())),
-                _ if (_quantity > *my_balance) => Err(Error::InsufficientAmountErr(
+                _ if (_quantity > *balance_user) => Err(Error::InsufficientAmountErr(
                     "You have no sufficient amount of value".to_string(),
                 )),
                 _ => Ok(()),
@@ -199,7 +199,7 @@ pub mod automated_market_maker {
             self.token2_balance.insert(_caller, token2 + _amount_token2);
         }
 
-        /// Returns the liquidity constant of a pool
+        /// Returns the liquidity constant K value of a pool
         fn get_k(&self) -> Balance {
             self.pool_total_token1 * self.pool_total_token2
         }
