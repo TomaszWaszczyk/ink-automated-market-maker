@@ -38,11 +38,10 @@ mod tests {
         set_callee::<DefaultEnvironment>(_contract_addr);
         set_caller::<ink_env::DefaultEnvironment>(_accounts.alice);
 
-        let mut _amm_contract = AutomatedMarketMaker::new(0);
         _amm_contract.faucet_brrr(10, 20);
 
         let _provided_liquidity = _amm_contract.provide_liquidity(1, 2).unwrap();
 
-        assert_eq!(_provided_liquidity, 1000000000);
+        assert_eq!(_provided_liquidity, 1_000_000);
     }
 }

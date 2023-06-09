@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-const PRECISION: u128 = 1_000_000;
+const PRECISION: u128 = 1_000;
 
 #[ink::contract]
 pub mod automated_market_maker {
