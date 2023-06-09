@@ -15,8 +15,18 @@ mod tests {
 
         set_callee::<DefaultEnvironment>(_contract_addr);
         set_caller::<ink_env::DefaultEnvironment>(_accounts.alice);
+    }
 
-        _amm_contract.faucet(10, 20);
+    #[test]
+    fn should_activate_brrr_test() {
+        let mut _amm_contract = AutomatedMarketMaker::new(0);
+        let _accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
+        let _contract_addr: AccountId = AccountId::from([0xFF as u8; 32]);
+        set_callee::<DefaultEnvironment>(_contract_addr);
+        set_caller::<ink_env::DefaultEnvironment>(_accounts.alice);
+
+        _amm_contract.faucet_brrr(10, 20);
+        
         assert_eq!(_amm_contract.get_information_portfolio(), (10, 20, 0));
     }
 }

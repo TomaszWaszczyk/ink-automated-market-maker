@@ -190,7 +190,7 @@ pub mod automated_market_maker {
 
         /// Sends free token(s) to the invoker
         #[ink(message)]
-        pub fn faucet(&mut self, _amount_token1: Balance, _amount_token2: Balance) {
+        pub fn faucet_brrr(&mut self, _amount_token1: Balance, _amount_token2: Balance) {
             let _caller = self.env().caller();
             let token1 = self.token1_balance.get(&_caller).unwrap_or(&0);
             let token2 = self.token2_balance.get(&_caller).unwrap_or(&0);
