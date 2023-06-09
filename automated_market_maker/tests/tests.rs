@@ -29,4 +29,20 @@ mod tests {
         
         assert_eq!(_amm_contract.get_information_portfolio(), (10, 20, 0));
     }
+
+    #[test]
+    fn should_provide_liquidity_test() {
+        let mut _amm_contract = AutomatedMarketMaker::new(0);
+        let _accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
+        let _contract_addr: AccountId = AccountId::from([0xFF as u8; 32]);
+        set_callee::<DefaultEnvironment>(_contract_addr);
+        set_caller::<ink_env::DefaultEnvironment>(_accounts.alice);
+
+        let mut _amm_contract = AutomatedMarketMaker::new(0);
+        _amm_contract.faucet_brrr(10, 20);
+
+        let _provided_liquidity = _amm_contract.provide_liquidity(1, 2).unwrap();
+
+        assert_eq!(_provided_liquidity, 1000000000);
+    }
 }
