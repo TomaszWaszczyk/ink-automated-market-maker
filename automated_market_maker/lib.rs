@@ -39,7 +39,7 @@ pub mod automated_market_maker {
             _amount_token1: Balance,
             _amount_token2: Balance,
         ) -> Result<Balance, Error> {
-            self.check_valid_amount(self.token1_balance.clone(), _amount_token1)?;
+            self.check_valid_amount(&self.token1_balance, _amount_token1)?;
 
             let _caller = self.env().caller();
             let _issued_shares: u128;
@@ -151,7 +151,7 @@ pub mod automated_market_maker {
         #[ink(message)]
         pub fn withdraw(&mut self, _share: Balance) -> Result<(Balance, Balance), Error> {
             let _caller = self.env().caller();
-            self.check_valid_amount(self.shares.clone(), _share)?;
+            self.check_valid_amount(&self.shares, _share)?;
 
             let (amount_token1, amount_token2) = self.get_withdraw_estimation(_share)?;
             self.shares.entry(_caller).and_modify(|value| *value -= _share);
@@ -173,7 +173,7 @@ pub mod automated_market_maker {
         /// Ensure that quantity is non-zero and user has enough balance
         fn check_valid_amount(
             &self,
-            _balance: BTreeMap<AccountId, Balance>,
+            _balance: &BTreeMap<AccountId, Balance>,
             _quantity: Balance,
         ) -> Result<(), Error> {
             let _caller = self.env().caller();
