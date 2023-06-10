@@ -26,7 +26,7 @@ mod tests {
         set_caller::<ink_env::DefaultEnvironment>(_accounts.alice);
 
         _amm_contract.faucet_brrr(10, 20);
-        
+
         assert_eq!(_amm_contract.get_information_portfolio(), (10, 20, 0));
     }
 
