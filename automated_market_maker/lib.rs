@@ -84,7 +84,7 @@ pub mod automated_market_maker {
             &self,
             _amount_token1: Balance,
         ) -> Result<Balance, Error> {
-            self.restrict_active_pool()?;
+            self.restrict_liquidity_in_pool()?;
             let _amount_token1 = (1000 - self.trading_fee) * _amount_token1 / 1000;
 
             let token1_after = self.pool_total_token1 + _amount_token1;
@@ -101,7 +101,7 @@ pub mod automated_market_maker {
         /// Returns the amount of token1 that the user should swap to get _amount_token2 in return
         #[ink(message)]
         pub fn swap_token1_for_given_token2(&self, _amount_token2: Balance) -> Result<Balance, Error> {
-            self.restrict_active_pool()?;
+            self.restrict_liquidity_in_pool()?;
 
             if _amount_token2 >= self.pool_total_token2 {
                 return Err(Error::InsufficientLiquidityErr(
@@ -119,21 +119,21 @@ pub mod automated_market_maker {
         /// Returns amount of token1 required when providing liquidity with _amount_token2 quantity of token2
         #[ink(message)]
         pub fn get_equivalent_token1_estimate(&self, _amount_token2: Balance) -> Result<Balance, Error> {
-            self.restrict_active_pool()?;
+            self.restrict_liquidity_in_pool()?;
             Ok(self.pool_total_token1 * _amount_token2 / self.pool_total_token2)
         }
 
         /// Returns amount of token2 required when providing liquidity with _amount_token1 quantity of token1
         #[ink(message)]
         pub fn get_equivalent_token2_estimate(&self, _amount_token1: Balance) -> Result<Balance, Error> {
-            self.restrict_active_pool()?;
+            self.restrict_liquidity_in_pool()?;
             Ok(self.pool_total_token2 * _amount_token1 / self.pool_total_token1)
         }
 
         /// Returns estimation of token1 and token2 that will be released on burning given _share
         #[ink(message)]
         pub fn get_withdraw_estimation(&self, _share: Balance) -> Result<(Balance, Balance), Error> {
-            self.restrict_active_pool()?;
+            self.restrict_liquidity_in_pool()?;
 
             if _share > self.total_shares {
                 return Err(Error::InvalidShareErr(
@@ -204,11 +204,11 @@ pub mod automated_market_maker {
             self.pool_total_token1 * self.pool_total_token2
         }
 
-        /// Restriction of withdrawing and swapping feature till liquidity is added to a pool
-        fn restrict_active_pool(&self) -> Result<(), Error> {
+        /// Restriction of withdrawing and swapping till liquidity is added to a pool
+        pub fn restrict_liquidity_in_pool(&self) -> Result<(), Error> {
             match self.get_k() {
                 0 => Err(Error::ZeroLiquidityErr(
-                    "You have no liquidity and there is no way to make BRRR".to_string(),
+                    "You have no liquidity and there is no way to make brrr".to_string(),
                 )),
                 _ => Ok(()),
             }
