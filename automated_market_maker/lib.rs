@@ -78,6 +78,20 @@ pub mod automated_market_maker {
             Ok(issued_shares)
         }
 
+        /// Returns amount of token1 required when providing liquidity with _amount_token2 quantity of token2
+        #[ink(message)]
+        pub fn get_equivalent_token1_estimate(&self, _amount_token2: Balance) -> Result<Balance, Error> {
+            self.restrict_liquidity_in_pool()?;
+            Ok(self.pool_total_token1 * _amount_token2 / self.pool_total_token2)
+        }
+
+        /// Returns amount of token2 required when providing liquidity with _amount_token1 quantity of token1
+        #[ink(message)]
+        pub fn get_equivalent_token2_estimate(&self, _amount_token1: Balance) -> Result<Balance, Error> {
+            self.restrict_liquidity_in_pool()?;
+            Ok(self.pool_total_token2 * _amount_token1 / self.pool_total_token1)
+        }
+
         #[ink(message)]
         pub fn estimate_swap_token1_for_given_token1(
             &self,
@@ -130,20 +144,6 @@ pub mod automated_market_maker {
             let amount_token1 = (token1_after - self.pool_total_token1) * 1000 / (1000 - self.trading_fee);
 
             Ok(amount_token1)
-        }
-
-        /// Returns amount of token1 required when providing liquidity with _amount_token2 quantity of token2
-        #[ink(message)]
-        pub fn get_equivalent_token1_estimate(&self, _amount_token2: Balance) -> Result<Balance, Error> {
-            self.restrict_liquidity_in_pool()?;
-            Ok(self.pool_total_token1 * _amount_token2 / self.pool_total_token2)
-        }
-
-        /// Returns amount of token2 required when providing liquidity with _amount_token1 quantity of token1
-        #[ink(message)]
-        pub fn get_equivalent_token2_estimate(&self, _amount_token1: Balance) -> Result<Balance, Error> {
-            self.restrict_liquidity_in_pool()?;
-            Ok(self.pool_total_token2 * _amount_token1 / self.pool_total_token1)
         }
 
         /// Returns estimation of token1 and token2 that will be released on burning given _share
