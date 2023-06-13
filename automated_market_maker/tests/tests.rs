@@ -46,13 +46,13 @@ mod tests {
     }
 
     #[test]
-    fn check_no_liquidity_in_pool_test () {
+    fn check_no_liquidity_in_pool_test() {
         let mut _amm_contract = AutomatedMarketMaker::new(0);
         let _accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
         set_caller::<ink_env::DefaultEnvironment>(_accounts.alice);
-        
+
         let expected_error_type = Error::ZeroAmountErr("Value cannot be zero!".to_string());
-        
+
         assert_eq!(_amm_contract.provide_liquidity(0, 0), Err(expected_error_type));
     }
 }

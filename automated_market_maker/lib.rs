@@ -78,6 +78,26 @@ pub mod automated_market_maker {
             Ok(_issued_shares)
         }
 
+        #[ink(message)]
+        pub fn estimate_swap_token1_for_given_token1(
+            &self,
+            _amount_token_1: Balance,
+        ) -> Result<Balance, Error> {
+            self.restrict_liquidity_in_pool()?;
+            let _amount_token1 = (1000 - self.trading_fee) * _amount_token_1 / 1000;
+
+            let token_1_after_trade = self.pool_total_token1 + _amount_token1;
+            let token_2_after_trade = self.get_k() / token_1_after_trade;
+
+            let mut amount_token_2 = self.pool_total_token2 - token_2_after_trade;
+
+            if amount_token_2 == self.pool_total_token2 {
+                amount_token_2 -= 1;
+            }
+
+            Ok(amount_token_2)
+        }
+
         /// Returns the amount of token2 that the user will get swapping a given amount of token1 for token2
         #[ink(message)]
         pub fn estimate_swap_token1_for_given_token2(
@@ -89,13 +109,13 @@ pub mod automated_market_maker {
 
             let token1_after = self.pool_total_token1 + _amount_token1;
             let token2_after = self.get_k() / token1_after;
-            let mut amount_token2 = self.pool_total_token2 - token2_after;
+            let mut amount_token1 = self.pool_total_token2 - token2_after;
 
-            if amount_token2 == self.pool_total_token2 {
-                amount_token2 -= 1;
+            if amount_token1 == self.pool_total_token2 {
+                amount_token1 -= 1;
             }
 
-            Ok(amount_token2)
+            Ok(amount_token1)
         }
 
         /// Returns the amount of token1 that the user should swap to get _amount_token2 in return
