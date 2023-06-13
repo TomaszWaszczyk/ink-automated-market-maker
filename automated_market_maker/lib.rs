@@ -42,10 +42,10 @@ pub mod automated_market_maker {
             self.check_valid_amount(&self.token1_balance, _amount_token1)?;
 
             let _caller = self.env().caller();
-            let _issued_shares: u128;
+            let issued_shares: u128;
 
             if self.total_shares == 0 {
-                _issued_shares = 1000 * super::PRECISION;
+                issued_shares = 1000 * super::PRECISION;
             } else {
                 let share_1 = self.total_shares * _amount_token1 / self.pool_total_token1;
                 let share_2 = self.total_shares * _amount_token2 / self.pool_total_token1;
@@ -55,7 +55,7 @@ pub mod automated_market_maker {
                         "No equivalent of value of tokens".to_string(),
                     ));
                 }
-                _issued_shares = share_1;
+                issued_shares = share_1;
             };
 
             let _token_1 = self.token1_balance.get(&_caller).unwrap();
@@ -68,14 +68,14 @@ pub mod automated_market_maker {
 
             self.pool_total_token1 += _amount_token1;
             self.pool_total_token2 += _amount_token2;
-            self.total_shares += _issued_shares;
+            self.total_shares += issued_shares;
 
             self.shares
                 .entry(_caller)
-                .and_modify(|value| *value += _issued_shares)
-                .or_insert(_issued_shares);
+                .and_modify(|value| *value += issued_shares)
+                .or_insert(issued_shares);
 
-            Ok(_issued_shares)
+            Ok(issued_shares)
         }
 
         #[ink(message)]
@@ -89,10 +89,10 @@ pub mod automated_market_maker {
             let token_1_after_trade = self.pool_total_token1 + _amount_token1;
             let token_2_after_trade = self.get_k() / token_1_after_trade;
 
-            let mut amount_token_2 = self.pool_total_token2 - token_2_after_trade;
+            let amount_token_2 = self.pool_total_token2 - token_2_after_trade;
 
             if amount_token_2 == self.pool_total_token2 {
-                amount_token_2 -= 1;
+                return Err(Error::PoolDepleted("Pool depleted".to_string()));
             }
 
             Ok(amount_token_2)
@@ -109,11 +109,7 @@ pub mod automated_market_maker {
 
             let token1_after = self.pool_total_token1 + _amount_token1;
             let token2_after = self.get_k() / token1_after;
-            let mut amount_token1 = self.pool_total_token2 - token2_after;
-
-            if amount_token1 == self.pool_total_token2 {
-                amount_token1 -= 1;
-            }
+            let amount_token1 = self.pool_total_token2 - token2_after;
 
             Ok(amount_token1)
         }
@@ -259,6 +255,7 @@ pub mod automated_market_maker {
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
+        PoolDepleted(String),
         ZeroAmountErr(String),
         InvalidShareErr(String),
         ZeroLiquidityErr(String),
