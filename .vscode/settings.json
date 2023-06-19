@@ -1,0 +1,12 @@
+{
+    "workbench.colorCustomizations": {
+    "activityBar.foreground": "#552BBF",
+    "activityBarBadge.background": "#552BBF",
+    "activityBar.inactiveForeground": "#552BBF"
+  },
+  "cSpell.words": [
+    "clsx",
+    "polkadot",
+    "Polkadot"
+  ],
+}
