@@ -1,8 +1,8 @@
 {
     "workbench.colorCustomizations": {
     "activityBar.foreground": "#552BBF",
-    "activityBarBadge.background": "#552BBF",
-    "activityBar.inactiveForeground": "#552BBF"
+    "activityBarBadge.background": "#838383",
+    "activityBar.inactiveForeground": "#838383"
   },
   "cSpell.words": [
     "clsx",

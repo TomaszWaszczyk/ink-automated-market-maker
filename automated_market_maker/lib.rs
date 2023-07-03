@@ -221,7 +221,7 @@ pub mod automated_market_maker {
         }
 
         /// Restriction of withdrawing and swapping till liquidity is added to a pool
-        pub fn restrict_liquidity_in_pool(&self) -> Result<(), Error> {
+        fn restrict_liquidity_in_pool(&self) -> Result<(), Error> {
             match self.get_k() {
                 0 => Err(Error::ZeroLiquidityErr(
                     "You have no liquidity and there is no way to make brrr".to_string(),
